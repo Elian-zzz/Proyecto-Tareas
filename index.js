@@ -6,6 +6,7 @@ const app = express();
 app.use(express.json()); // Middleware para JSON
 const puerto = 3000;
 
+// Servir estaticamente archivos desde public
 app.use(express.static(path.join(__dirname, "public")));
 
 // Consulta raíz
@@ -27,7 +28,7 @@ app.get("/api/usuarios", async (req, res) => {
 
 // API POST para agregar tarea
 app.post("/api/ingresar_usuarios", async (req, res) => {
-  const { nombre, descripcion, completada } = req.body;
+  const { nombre, descripcion } = req.body;
   if (!nombre || !descripcion) {
     return res.json({ success: false, error: "Datos incompletos" });
   }
@@ -35,7 +36,6 @@ app.post("/api/ingresar_usuarios", async (req, res) => {
     await db.query("INSERT INTO Tarea (nombre,descripcion) VALUES (?, ?)", [
       nombre,
       descripcion,
-      completada,
     ]);
     res.json({ success: true });
   } catch (err) {
@@ -47,6 +47,16 @@ app.post("/api/ingresar_usuarios", async (req, res) => {
 app.get("/search", (req, res) => {
   const query = req.query.nombre; // ejemplo: /search?q=algo
   res.send(`Buscaste: ${query}`);
+});
+
+app.delete("/api/usuarios/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    await db.query("DELETE FROM Tarea WHERE id_tarea = ?", [id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.json({ success: false, error: "Error al eliminar tarea de id: " + id });
+  }
 });
 
 // Servidor escuchando en el puerto 3000

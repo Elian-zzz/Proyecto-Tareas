@@ -7,7 +7,7 @@ form.addEventListener("submit", function (e) {
   e.preventDefault();
   const nuevaTarea = {
     nombre: nombreInput.value,
-    descripcion: descInput.value
+    descripcion: descInput.value,
   };
   fetch("/api/ingresar_usuarios", {
     method: "POST",
@@ -47,6 +47,7 @@ boton.addEventListener("click", () => {
         item.innerHTML = `
           <span class="titulo">${tarea.nombre}</span>
           <span class="descripcion">${tarea.descripcion}</span>
+          <button class="eliminar-btn" data-id="${tarea.id_tarea}">Eliminar </button>
         `;
         lista.appendChild(item);
       });
@@ -56,4 +57,22 @@ boton.addEventListener("click", () => {
     .catch(() => {
       resultado.innerHTML = "<p>Error al obtener las tareas.</p>";
     });
+});
+resultado.addEventListener("click", (e) => {
+  if (e.target.classList.contains("eliminar-btn")) {
+    const id = e.target.getAttribute("data-id");
+    console.log("ID para eliminar:", id); // Depuración
+    fetch(`/api/usuarios/${id}`, {
+      method: "DELETE",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          boton.click(); // Actualiza la lista
+        } else {
+          alert("Error al eliminar la tarea");
+        }
+      })
+      .catch(() => alert("Error de conexión con el servidor"));
+  }
 });
